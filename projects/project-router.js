@@ -50,11 +50,30 @@ router.post(
   }
 );
 
+router.get("/:id/detailed", validateProjectId, async (req, res, next) => {
+  let tasks = await db.getTasks(req.project.id);
+  if (tasks) {
+    tasks = tasks.map(t => {
+      return { ...t, completed: t.completed ? true : false };
+    });
+
+    const detailed = { ...req.project, tasks: tasks };
+
+    res.status(200).json(detailed);
+  } else {
+    next({
+      status: 500,
+      message: "The detailed project could not be retrieved."
+    });
+  }
+});
+
 async function validateProjectId(req, res, next) {
   try {
     const { id } = req.params;
-    const project = await db.get(id);
+    let project = await db.get(id);
     if (project) {
+      project = { ...project, completed: project.completed ? true : false };
       req.project = project;
       next();
     } else {

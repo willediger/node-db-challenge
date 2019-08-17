@@ -17,6 +17,9 @@ module.exports = {
     }
     return query;
   },
+  getTasks: function(project_id) {
+    return db("tasks").where("project_id", project_id);
+  },
 
   insert: function(project) {
     return db("projects")
