@@ -5,8 +5,11 @@ const router = express.Router();
 
 // - `GET /api/projects/`: all projects
 router.get("/", async (req, res, next) => {
-  const projects = await db.get();
+  let projects = await db.get();
   if (projects) {
+    projects = projects.map(p => {
+      return { ...p, completed: p.completed ? true : false };
+    });
     res.status(200).json(projects);
   } else {
     next({
@@ -33,8 +36,9 @@ router.post(
   validateProjectId,
   validateTask,
   async (req, res, next) => {
-    const task = await db.insertTask(req.project.id, req.body);
+    let task = await db.insertTask(req.project.id, req.body);
     if (task) {
+      task = task.map;
       res.status(200).json(task);
     } else {
       next({
