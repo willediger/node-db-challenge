@@ -16,7 +16,7 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.post("/", validatProject, async (req, res, next) => {
+router.post("/", validateProject, async (req, res, next) => {
   const project = await db.insert(req.body);
   if (project) {
     res.status(200).json(project);
@@ -49,7 +49,7 @@ async function validateProjectId(req, res, next) {
   }
 }
 
-function validatProject(req, res, next) {
+function validateProject(req, res, next) {
   console.log(req.body);
   if (req.body && Object.keys(req.body).length > 0) {
     if (
