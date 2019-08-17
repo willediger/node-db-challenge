@@ -8,10 +8,7 @@ exports.up = function(knex) {
         .unique()
         .notNullable();
       tbl.text("description");
-      tbl
-        .boolean("completed")
-        .defaultTo(0)
-        .notNullable();
+      tbl.boolean("completed").notNullable();
     })
 
     .createTable("resources", tbl => {
@@ -41,6 +38,7 @@ exports.up = function(knex) {
         .inTable("resources")
         .onUpdate("CASCADE")
         .onDelete("CASCADE");
+      tbl.unique(["resource_id", "project_id"]);
     })
 
     .createTable("tasks", tbl => {
@@ -53,15 +51,9 @@ exports.up = function(knex) {
         .inTable("projects")
         .onUpdate("CASCADE")
         .onDelete("CASCADE");
-      tbl
-        .text("description")
-        .unique()
-        .notNullable();
+      tbl.text("description").notNullable();
       tbl.text("notes");
-      tbl
-        .boolean("completed")
-        .defaultTo(0)
-        .notNullable();
+      tbl.boolean("completed").notNullable();
     });
 };
 
