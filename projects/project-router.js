@@ -28,10 +28,27 @@ router.post("/", validateProject, async (req, res, next) => {
   }
 });
 
+router.post(
+  "/:id/tasks",
+  validateProjectId,
+  validateTask,
+  async (req, res, next) => {
+    const task = await db.insertTask(req.project.id, req.body);
+    if (task) {
+      res.status(200).json(task);
+    } else {
+      next({
+        status: 500,
+        message: "The task could not be added."
+      });
+    }
+  }
+);
+
 async function validateProjectId(req, res, next) {
   try {
     const { id } = req.params;
-    const project = await db.getProject(id);
+    const project = await db.get(id);
     if (project) {
       req.project = project;
       next();
@@ -67,6 +84,28 @@ function validateProject(req, res, next) {
     next({
       status: 400,
       message: "missing project data"
+    });
+  }
+}
+
+function validateTask(req, res, next) {
+  console.log(req.body);
+  if (req.body && Object.keys(req.body).length > 0) {
+    if (
+      req.body.hasOwnProperty("description") &&
+      req.body.hasOwnProperty("completed")
+    ) {
+      next();
+    } else {
+      next({
+        status: 400,
+        message: "missing description or completion status"
+      });
+    }
+  } else {
+    next({
+      status: 400,
+      message: "missing task data"
     });
   }
 }
