@@ -20,8 +20,9 @@ router.get("/", async (req, res, next) => {
 });
 
 router.post("/", validateProject, async (req, res, next) => {
-  const project = await db.insert(req.body);
+  let project = await db.insert(req.body);
   if (project) {
+    project = { ...project, completed: project.completed ? true : false };
     res.status(200).json(project);
   } else {
     next({
@@ -38,7 +39,7 @@ router.post(
   async (req, res, next) => {
     let task = await db.insertTask(req.project.id, req.body);
     if (task) {
-      task = task.map;
+      task = { ...task, completed: task.completed ? true : false };
       res.status(200).json(task);
     } else {
       next({
@@ -71,17 +72,16 @@ async function validateProjectId(req, res, next) {
 }
 
 function validateProject(req, res, next) {
-  console.log(req.body);
+  if (!req.body.hasOwnProperty("completed") || req.body.completed === null) {
+    req.body.completed = 0;
+  }
   if (req.body && Object.keys(req.body).length > 0) {
-    if (
-      req.body.hasOwnProperty("name") &&
-      req.body.hasOwnProperty("completed")
-    ) {
+    if (req.body.hasOwnProperty("name")) {
       next();
     } else {
       next({
         status: 400,
-        message: "missing name or completion status"
+        message: "missing name"
       });
     }
   } else {
@@ -93,17 +93,16 @@ function validateProject(req, res, next) {
 }
 
 function validateTask(req, res, next) {
-  console.log(req.body);
+  if (!req.body.hasOwnProperty("completed") || req.body.completed === null) {
+    req.body.completed = 0;
+  }
   if (req.body && Object.keys(req.body).length > 0) {
-    if (
-      req.body.hasOwnProperty("description") &&
-      req.body.hasOwnProperty("completed")
-    ) {
+    if (req.body.hasOwnProperty("description")) {
       next();
     } else {
       next({
         status: 400,
-        message: "missing description or completion status"
+        message: "missing description"
       });
     }
   } else {
